@@ -8,6 +8,8 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use app\models\Customer;
+use app\models\CustomerForm;
 
 class SiteController extends Controller
 {
@@ -121,5 +123,40 @@ class SiteController extends Controller
     public function actionAbout()
     {
         return $this->render('about');
+    }
+
+    public function actionCustomers(){
+      $customers = Customer::find()->all();
+      return $this->render('customers',array('customers'=>$customers));
+    }
+
+    public function actionCustomer($id){
+      $model = Customer::findOne($id);
+      return $this->render('customer', [
+          'model' => $model,
+      ]);
+    }
+
+    public function actionPostcustomer($id=NULL){
+      if($id){
+        $model = Customer::findOne($id);
+      } else {
+        $model = new Customer();
+      }
+      if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        $this->redirect(\Yii::$app->urlManager->createUrl("site/customers"));
+      }
+    }
+
+    public function actionDeletecustomer($id){
+      $model = Customer::findOne($id);
+      $model->delete();
+      $this->redirect(\Yii::$app->urlManager->createUrl("site/customers"));
+    }
+
+    public function actionNewcustomer(){
+      return $this->render('customer', [
+        'model' => new Customer()
+      ]);
     }
 }
